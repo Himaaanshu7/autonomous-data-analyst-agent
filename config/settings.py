@@ -7,9 +7,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 def _load_streamlit_secrets() -> None:
-    """Inject Streamlit secrets into environment variables before settings load.
+    """Inject Streamlit secrets into os.environ before settings load.
 
-    This makes the same Settings class work for both local (.env) and
+    Makes the same Settings class work for both local (.env) and
     Streamlit Cloud (secrets.toml) without any change to calling code.
     """
     try:
@@ -18,7 +18,7 @@ def _load_streamlit_secrets() -> None:
             if isinstance(value, str) and key not in os.environ:
                 os.environ[key] = value
     except Exception:
-        pass  # Not running inside Streamlit, or secrets not configured
+        pass
 
 
 _load_streamlit_secrets()
@@ -31,9 +31,9 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    # LLM
-    anthropic_api_key: str = Field(default="", alias="ANTHROPIC_API_KEY")
-    llm_model: str = Field(default="claude-sonnet-4-6", alias="LLM_MODEL")
+    # LLM  (Groq — free tier)
+    groq_api_key: str = Field(default="", alias="GROQ_API_KEY")
+    llm_model: str = Field(default="llama-3.3-70b-versatile", alias="LLM_MODEL")
     llm_max_tokens: int = 4096
 
     # Database

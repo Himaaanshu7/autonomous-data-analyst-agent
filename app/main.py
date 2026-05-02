@@ -31,30 +31,31 @@ from utils.memory_manager import memory
 
 
 def _check_api_key() -> bool:
-    """Return True if a valid API key is present; otherwise render setup instructions."""
+    """Return True if a valid Groq key is present; otherwise render setup instructions."""
     from config.settings import settings
-    key = settings.anthropic_api_key
-    if key and key.startswith("sk-ant-") and "your-key-here" not in key:
+    key = settings.groq_api_key
+    if key and key.startswith("gsk_") and "your-key-here" not in key:
         return True
 
-    st.error("**Anthropic API key not configured.**")
+    st.error("**Groq API key not configured.**")
     st.markdown(
         """
-**To run the app locally:**
+**Groq is free — no billing required.**
 
-1. Create a file called `.env` in the project root:
+**Step 1 — Get your free key:**
+Go to https://console.groq.com/keys → sign up → create an API key.
+
+**Step 2 — Add it locally:**
+Open `.env` in the project root and set:
 ```
-ANTHROPIC_API_KEY=sk-ant-your-real-key-here
+GROQ_API_KEY=gsk_your-real-key-here
 ```
 
-2. Get your key at → https://console.anthropic.com/keys
-
-3. Restart the app after saving the file.
+**Step 3 — Restart the app.**
 
 ---
-**To deploy on Streamlit Cloud:**
-
-Add `ANTHROPIC_API_KEY = "sk-ant-..."` to your app's **Secrets** panel.
+**Deploying on Streamlit Cloud?**
+Add `GROQ_API_KEY = "gsk_..."` to your app's **Secrets** panel.
 """
     )
     return False
