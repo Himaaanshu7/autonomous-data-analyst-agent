@@ -64,8 +64,19 @@ def _inject_dark_mode_css() -> None:
 # ---------------------------------------------------------------------------
 
 def _check_api_key() -> bool:
-    from config.settings import settings
-    key = settings.groq_api_key
+    import os
+    key = ""
+    # Try Streamlit secrets first (cloud deploy)
+    try:
+        key = st.secrets.get("GROQ_API_KEY", "")
+        if key:
+            os.environ["GROQ_API_KEY"] = key
+    except Exception:
+        pass
+    # Fall back to env / .env
+    if not key:
+        from config.settings import settings
+        key = settings.groq_api_key
     if key and key.startswith("gsk_") and "your-key-here" not in key:
         return True
     st.error("**Groq API key not configured.**")
