@@ -19,9 +19,25 @@ class LLMClient:
     """
 
     def __init__(self) -> None:
-        self._client = Groq(api_key=settings.groq_api_key)
+        self._client: Groq | None = None
         self._model = settings.llm_model
         self._max_tokens = settings.llm_max_tokens
+
+    def _get_client(self) -> Groq:
+        """Lazy-initialize Groq client so st.secrets are loaded first."""
+        if self._client is None:
+            import os
+            # Try st.secrets directly at call time (cloud deploy)
+            try:
+                import streamlit as st
+                key = st.secrets.get("GROQ_API_KEY", "")
+                if key:
+                    os.environ["GROQ_API_KEY"] = key
+            except Exception:
+                pass
+            api_key = os.environ.get("GROQ_API_KEY", settings.groq_api_key)
+            self._client = Groq(api_key=api_key)
+        return self._client
 
     def complete(
         self,
@@ -39,7 +55,7 @@ class LLMClient:
         last_error: Exception | None = None
         for attempt in range(max_retries):
             try:
-                response = self._client.chat.completions.create(
+                response = self._get_client().chat.completions.create(
                     model=self._model,
                     messages=messages,
                     max_tokens=self._max_tokens,
