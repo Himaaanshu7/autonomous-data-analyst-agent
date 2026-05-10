@@ -64,7 +64,7 @@ def detect_anomalies(
         if method in ("zscore", "both"):
             z_scores = np.abs(stats.zscore(series, nan_policy="omit"))
             z_series = pd.Series(z_scores, index=series.index)
-            z_outliers = df.index[z_series > z_thresh].tolist()
+            z_outliers = z_series.index[z_series > z_thresh].tolist()
             col_result["zscore_outliers"] = len(z_outliers)
             col_result["bounds"]["zscore_threshold"] = z_thresh
             col_result["anomaly_indices"].extend(z_outliers)

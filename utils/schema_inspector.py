@@ -25,13 +25,13 @@ def get_table_schema(table_name: str) -> dict[str, Any]:
     }
 
 
-def get_all_schemas_as_text() -> str:
-    tables = list_tables()
-    if not tables:
-        return "No tables loaded. Please load a dataset first."
+def get_schema_for_tables(table_names: list[str]) -> str:
+    """Return schema text for a specific list of tables only."""
+    if not table_names:
+        return "No tables selected."
 
     parts: list[str] = []
-    for table in tables:
+    for table in table_names:
         try:
             schema = get_table_schema(table)
             cols_text = ", ".join(
@@ -47,3 +47,7 @@ def get_all_schemas_as_text() -> str:
             logger.warning("Could not inspect table '%s': %s", table, exc)
 
     return "\n\n".join(parts)
+
+
+def get_all_schemas_as_text() -> str:
+    return get_schema_for_tables(list_tables())

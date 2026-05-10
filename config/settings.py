@@ -4,14 +4,28 @@ from pydantic import Field
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+_ENV_FILE = BASE_DIR / ".env"
 
 
-def _load_streamlit_secrets() -> None:
-    """Inject Streamlit secrets into os.environ before settings load.
+def _bootstrap_env() -> None:
+    """Load env vars in correct priority order:
+      1. .env file  (local dev — highest local priority)
+      2. Streamlit secrets (cloud deploy — fills any keys still missing)
 
-    Makes the same Settings class work for both local (.env) and
-    Streamlit Cloud (secrets.toml) without any change to calling code.
+    Both are injected into os.environ so pydantic-settings sees them.
+    os.environ values set before this call (e.g. real shell exports) are
+    never overwritten.
     """
+    # Step 1: .env — load keys not already in the real environment
+    try:
+        from dotenv import dotenv_values
+        for key, value in dotenv_values(str(_ENV_FILE)).items():
+            if value and key not in os.environ:
+                os.environ[key] = value
+    except Exception:
+        pass
+
+    # Step 2: Streamlit secrets — fill any keys still absent
     try:
         import streamlit as st
         for key, value in st.secrets.items():
@@ -21,12 +35,12 @@ def _load_streamlit_secrets() -> None:
         pass
 
 
-_load_streamlit_secrets()
+_bootstrap_env()
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=str(BASE_DIR / ".env"),
+        env_file=str(_ENV_FILE),
         env_file_encoding="utf-8",
         extra="ignore",
     )
@@ -41,7 +55,6 @@ class Settings(BaseSettings):
         default=str(BASE_DIR / "data" / "db" / "analytics.duckdb"),
         alias="DUCKDB_PATH",
     )
-    postgres_url: str = Field(default="", alias="POSTGRES_URL")
 
     # Paths
     sample_data_dir: str = str(BASE_DIR / "data" / "sample")

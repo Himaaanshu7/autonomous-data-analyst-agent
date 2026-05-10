@@ -1,6 +1,65 @@
 """Chat interface component — message history + spinner + sample prompts."""
+import json
+import logging
+from pathlib import Path
+from typing import Any, Callable
+
 import streamlit as st
-from typing import Callable
+
+logger = logging.getLogger(__name__)
+
+_CHAT_FILE = Path(__file__).resolve().parent.parent / "data" / "chat_history.json"
+
+
+def _json_default(obj: Any) -> Any:
+    """Fallback serialiser for numpy/pandas types."""
+    try:
+        import numpy as np
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+    except ImportError:
+        pass
+    return str(obj)
+
+
+def _slim_report(report: dict) -> dict:
+    """Cap data rows so the history file stays small."""
+    import copy
+    r = copy.deepcopy(report)
+    data = r.get("data", {})
+    if isinstance(data, dict) and "rows" in data:
+        data["rows"] = data["rows"][:50]
+    return r
+
+
+def _save_chat(messages: list) -> None:
+    try:
+        _CHAT_FILE.parent.mkdir(parents=True, exist_ok=True)
+        to_save = []
+        for msg in messages:
+            m: dict = {"role": msg["role"], "content": msg["content"]}
+            if "report" in msg:
+                m["report"] = _slim_report(msg["report"])
+            to_save.append(m)
+        _CHAT_FILE.write_text(
+            json.dumps(to_save, default=_json_default, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+    except Exception as exc:
+        logger.warning("Could not save chat history: %s", exc)
+
+
+def load_chat_history() -> list:
+    try:
+        if _CHAT_FILE.exists():
+            return json.loads(_CHAT_FILE.read_text(encoding="utf-8"))
+    except Exception as exc:
+        logger.warning("Could not load chat history: %s", exc)
+    return []
 
 
 SAMPLE_QUERIES = [
@@ -40,6 +99,7 @@ def add_user_message(content: str) -> None:
     if "messages" not in st.session_state:
         st.session_state.messages = []
     st.session_state.messages.append({"role": "user", "content": content})
+    _save_chat(st.session_state.messages)
 
 
 def add_assistant_message(content: str, report: dict | None = None) -> None:
@@ -47,9 +107,14 @@ def add_assistant_message(content: str, report: dict | None = None) -> None:
     if report:
         msg["report"] = report
     st.session_state.messages.append(msg)
+    _save_chat(st.session_state.messages)
 
 
 def clear_chat() -> None:
     st.session_state.messages = []
+    try:
+        _CHAT_FILE.unlink(missing_ok=True)
+    except Exception:
+        pass
     from utils.memory_manager import memory
     memory.clear_history()

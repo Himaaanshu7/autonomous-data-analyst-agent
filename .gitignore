@@ -1,7 +1,12 @@
 .env
 .streamlit/secrets.toml
 data/db/
-__pycache__/
+data/sample/
+data/chat_history.json
+data/memory_history.json
+data/sessions/
+data/feedback.json
+**/__pycache__/
 *.pyc
 *.pyo
 .pytest_cache/
@@ -10,3 +15,4 @@ venv/
 *.egg-info/
 .DS_Store
 *.log
+.claude/

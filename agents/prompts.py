@@ -20,6 +20,22 @@ STRICT RULES:
 5. Use COALESCE or IS NOT NULL when aggregating nullable columns.
 6. For revenue/sales drops, include a time comparison (current vs prior period).
 7. Never use * in final SELECT — name all columns explicitly.
+
+DUCKDB FUNCTION RULES (strictly follow — these differ from other databases):
+- REPLACE(string, from, to)  → exactly 3 arguments, NEVER 4
+- For regex replacement use: regexp_replace(string, pattern, replacement)
+- String concat: string1 || string2   (not CONCAT in all cases)
+- STRFTIME('%Y-%m', date_col) for year-month formatting
+- TRY_CAST(col AS INTEGER) for safe type casting
+- For vague "insights" or "overview" queries: SELECT all columns with LIMIT 500, no complex transforms
+
+DATE HANDLING RULES (critical — date columns are often stored as strings):
+- NEVER use CAST(col AS DATE) directly — it will crash on malformed values
+- ALWAYS use TRY_CAST(col AS DATE) so bad values become NULL instead of errors
+- For grouping by month: strftime('%Y-%m', TRY_CAST(col AS DATE)) — filter out NULLs with WHERE TRY_CAST(col AS DATE) IS NOT NULL
+- For date comparisons: TRY_CAST(col AS DATE) >= '2024-01-01'
+- If TRY_CAST returns all NULLs the column may use DD/MM/YYYY — use TRY_STRPTIME(col, '%d/%m/%Y') as fallback
+- Always wrap date operations in TRY_ variants to handle messy real-world data
 """
 
 SQL_REFLECTION_PROMPT = """You are a SQL debugging expert working with DuckDB.
@@ -37,7 +53,13 @@ DATABASE SCHEMA:
 {schema}
 
 Fix the SQL so it runs correctly. Return ONLY the corrected SQL in a ```sql ... ``` block.
-Do not explain — just return the working query."""
+Do not explain — just return the working query.
+
+COMMON FIXES:
+- Date cast errors → replace CAST(col AS DATE) with TRY_CAST(col AS DATE) and add WHERE TRY_CAST(col AS DATE) IS NOT NULL
+- If date format is DD/MM/YYYY → use TRY_STRPTIME(col, '%d/%m/%Y')
+- Type errors → use TRY_CAST instead of CAST for all type conversions
+- REPLACE errors → ensure exactly 3 arguments"""
 
 
 def build_sql_user_prompt(query: str) -> str:
