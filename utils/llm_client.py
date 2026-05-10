@@ -4,7 +4,7 @@ import time
 import logging
 from typing import Any
 
-from groq import Groq, RateLimitError, APIStatusError
+from groq import Groq, RateLimitError, APIStatusError, APIConnectionError, AuthenticationError
 
 from config.settings import settings
 
@@ -62,6 +62,16 @@ class LLMClient:
                     temperature=0.1,   # low temp → deterministic SQL / JSON
                 )
                 return response.choices[0].message.content
+            except AuthenticationError as exc:
+                raise RuntimeError(
+                    "Groq API key is invalid or missing. "
+                    "Check your GROQ_API_KEY in .env (local) or Streamlit Secrets (cloud)."
+                ) from exc
+            except APIConnectionError as exc:
+                wait = 2 ** attempt
+                logger.warning("Groq connection error — retrying in %ds (attempt %d)", wait, attempt + 1)
+                time.sleep(wait)
+                last_error = exc
             except RateLimitError as exc:
                 wait = 2 ** attempt
                 logger.warning("Groq rate limited — retrying in %ds (attempt %d)", wait, attempt + 1)
