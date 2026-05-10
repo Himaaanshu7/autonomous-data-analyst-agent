@@ -146,7 +146,35 @@ def _do_load_sample_data() -> None:
 # ---------------------------------------------------------------------------
 
 def render_sidebar() -> None:
-    st.sidebar.title("🦉 Noctua")
+    st.sidebar.markdown("""
+<div style="
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    border-radius: 14px;
+    padding: 18px 16px 14px 16px;
+    margin-bottom: 6px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+    text-align: center;
+">
+    <div style="font-size: 2.4rem; line-height: 1;">🦉</div>
+    <div style="
+        font-size: 1.65rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        background: linear-gradient(90deg, #a8edea, #fed6e3, #a8edea);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-top: 4px;
+    ">NOCTUA</div>
+    <div style="
+        font-size: 0.7rem;
+        color: #8ecae6;
+        letter-spacing: 0.18em;
+        margin-top: 2px;
+        text-transform: uppercase;
+    ">AI Data Analyst</div>
+</div>
+""", unsafe_allow_html=True)
     st.sidebar.markdown("---")
 
     # ── Dataset Management ─────────────────────────────────────────────
@@ -636,7 +664,34 @@ def main() -> None:
 
     render_sidebar()
 
-    st.title("🦉 Noctua — AI Data Analyst")
+    st.markdown("""
+<div style="
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 12px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+">
+    <div style="display:flex; align-items:center; gap:16px;">
+        <span style="font-size:3rem;">🦉</span>
+        <div>
+            <div style="
+                font-size: 2.4rem;
+                font-weight: 900;
+                letter-spacing: 0.1em;
+                background: linear-gradient(90deg, #a8edea, #fed6e3);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                line-height: 1.1;
+            ">NOCTUA</div>
+            <div style="color:#8ecae6; font-size:0.85rem; letter-spacing:0.2em; text-transform:uppercase; margin-top:2px;">
+                See everything in your data
+            </div>
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
     # Threshold alert banners (top of page)
     for alert_msg in st.session_state.get("triggered_alerts", []):
