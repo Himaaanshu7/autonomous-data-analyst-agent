@@ -1,4 +1,4 @@
-"""Streamlit entry point for the Autonomous Data Analyst Agent."""
+"""Streamlit entry point for Noctua — AI Data Analyst."""
 import logging
 import sys
 from datetime import datetime
@@ -12,8 +12,8 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s | %(name)s | %(mes
 logger = logging.getLogger(__name__)
 
 st.set_page_config(
-    page_title="Autonomous Data Analyst",
-    page_icon="🤖",
+    page_title="Noctua — AI Data Analyst",
+    page_icon="🦉",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -146,7 +146,7 @@ def _do_load_sample_data() -> None:
 # ---------------------------------------------------------------------------
 
 def render_sidebar() -> None:
-    st.sidebar.title("🤖 Data Analyst Agent")
+    st.sidebar.title("🦉 Noctua")
     st.sidebar.markdown("---")
 
     # ── Dataset Management ─────────────────────────────────────────────
@@ -502,7 +502,7 @@ def _check_threshold_alerts() -> None:
 
 def _render_welcome_screen() -> None:
     st.markdown("---")
-    st.markdown("## 👋 Welcome to your Autonomous Data Analyst")
+    st.markdown("## 👋 Welcome to Noctua")
     st.markdown("Ask questions about your data in plain English — no SQL or coding needed.")
 
     col1, col2, col3 = st.columns(3)
@@ -636,7 +636,7 @@ def main() -> None:
 
     render_sidebar()
 
-    st.title("🤖 Autonomous Data Analyst Agent")
+    st.title("🦉 Noctua — AI Data Analyst")
 
     # Threshold alert banners (top of page)
     for alert_msg in st.session_state.get("triggered_alerts", []):

@@ -18,7 +18,7 @@ class _ReportPDF:
                 self.set_font("Helvetica", "B", 11)
                 self.set_fill_color(30, 80, 160)
                 self.set_text_color(255, 255, 255)
-                self.cell(0, 10, "  Autonomous Data Analyst", fill=True, ln=True)
+                self.cell(0, 10, "  Noctua — AI Data Analyst", fill=True, ln=True)
                 self.set_text_color(0, 0, 0)
                 self.ln(2)
 
