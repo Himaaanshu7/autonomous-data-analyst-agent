@@ -110,9 +110,6 @@ pytest tests/ -v
 
 Click **Run Anomaly Scan** in the sidebar. The agent scans all loaded tables, detects statistical anomalies, and generates a business alert for each affected table — with no user query needed.
 
-## Deployment (Streamlit Cloud)
+## Live Demo
 
-1. Push to GitHub
-2. Go to share.streamlit.io → New App
-3. Set `app/main.py` as the entry point
-4. Add `ANTHROPIC_API_KEY` in Secrets
+Try it live: **https://autonomous-data-analyst-agent.streamlit.app/**
